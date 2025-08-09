@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>防詐騙互動網頁</title>
+<style>
+:root{
+  --bg:#0b0f14;--fg:#e9eef6;--muted:#9fb2c7;--a:#7cc4ff;--b:#b892ff;--ok:#43d17b;--bad:#ff6b6b;
+  --panel:#0f1621cc;--panel2:#0d131dcc;--stroke:#ffffff24;--shadow:#00000066
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;color:var(--fg);font:16px/1.6 ui-sans-serif,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,"Noto Sans TC"}
+/* 背景：多層極光 + 噪點 + 網格 */
+.bg{position:fixed;inset:-10% -10% -10% -10%;z-index:-3;
+  background:
+    radial-gradient(1200px 700px at 80% -10%,#162131 0%,transparent 60%),
+    radial-gradient(1000px 600px at 0% 110%,#131c2a 0%,transparent 60%),
+    linear-gradient(180deg,#0b0f14 0%,#0a121c 100%)}
+.aur1,.aur2{position:fixed;inset:-15% -15% auto -15%;height:58vh;filter:blur(38px);opacity:.45;z-index:-2}
+.aur1{background:conic-gradient(from .2turn,#7cc4ff33,#b892ff33,#7cc4ff33);animation:aur1 18s ease-in-out infinite alternate}
+.aur2{top:auto;bottom:-10%;height:52vh;background:conic-gradient(from .7turn,#57f0b833,#7cc4ff33,#b892ff33);animation:aur2 22s ease-in-out infinite alternate}
+@keyframes aur1{0%{transform:translateY(0)}100%{transform:translateY(6vh) rotate(6deg)}}
+@keyframes aur2{0%{transform:translateY(0)}100%{transform:translateY(-5vh) rotate(-5deg)}}
+.noise{position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.06;background:
+  url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2"/></filter><rect width="100%" height="100%" filter="url(%23n)"/></svg>')}
+.gridbg{position:fixed;inset:0;z-index:-2;opacity:.25;background:
+  conic-gradient(from 0turn at 50% 50%,#ffffff10 0 25%,#0000 0 50%,#ffffff10 0 75%,#0000 0) 0 0/22px 22px}
+
+/* 導覽與位置提示 */
+nav{position:fixed;top:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:center;gap:26px;
+  background:#0b121acc;border-bottom:1px solid var(--stroke);backdrop-filter:blur(8px);z-index:60}
+nav a{color:var(--fg);text-decoration:none;font-weight:600;opacity:.92}
+nav a:hover{opacity:1}
+.progress{position:fixed;top:56px;left:0;height:8px;width:0;background:linear-gradient(90deg,var(--a),var(--b));z-index:80;cursor:ew-resize;border-top-right-radius:6px;border-bottom-right-radius:6px}
+.rail{position:fixed;left:10px;top:70px;bottom:10px;width:10px;border-radius:999px;background:linear-gradient(180deg,var(--a),var(--b));
+  z-index:80;display:none;cursor:ns-resize;box-shadow:0 4px 16px var(--shadow)}
+.current{position:fixed;right:12px;top:64px;background:#0e1623cc;color:#d6e6fa;border:1px solid var(--stroke);
+  padding:6px 10px;border-radius:10px;font-size:12px;backdrop-filter:blur(6px);z-index:81}
+@media (max-width:900px){.progress{display:none}.rail{display:block}}
+@media (min-width:901px){.rail{display:none}}
+
+/* 區塊與卡片 */
+header{min-height:100vh;display:grid;place-items:center;padding:120px 20px 80px}
+h1{font-size:clamp(42px,7vw,96px);letter-spacing:-.02em;margin:0;text-align:center}
+.lead{max-width:880px;margin:10px auto 22px;text-align:center;color:var(--muted)}
+.cta{display:flex;gap:12px;justify-content:center}
+.btn{padding:12px 18px;border-radius:16px;border:1px solid var(--stroke);
+     background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.03));color:var(--fg);cursor:pointer}
+.btn.primary{background:linear-gradient(180deg,var(--a),#3ba8ff);color:#06121b;border:none}
+.btn:hover{transform:translateY(-1px)}
+section{padding:110px 20px;max-width:1200px;margin:0 auto}
+.eyebrow{display:inline-block;margin-bottom:10px;color:var(--a);letter-spacing:.18em;font-size:12px;text-transform:uppercase}
+h2{font-size:clamp(30px,4.5vw,52px);margin:0 0 14px}
+.desc{color:var(--muted);max-width:980px}
+
+.grid12{display:grid;grid-template-columns:repeat(12,1fr);gap:22px}
+.card{grid-column:span 6;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
+  border:1px solid var(--stroke);border-radius:22px;padding:22px;box-shadow:0 10px 28px var(--shadow);
+  transform:translateY(18px) scale(.98);opacity:0;will-change:transform,opacity;transition:transform .5s cubic-bezier(.2,.9,.2,1),opacity .5s}
+.card.seen{opacity:1;transform:translateY(0) scale(1)}
+.card:hover{transform:translateY(-2px) scale(1.01)}
+.card h3{margin-top:0}
+
+.tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px}
+.tool{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
+  border:1px solid var(--stroke);border-radius:18px;padding:16px;box-shadow:0 10px 24px var(--shadow);
+  transform:translateY(18px) scale(.98);opacity:0;transition:transform .5s,opacity .5s}
+.tool.seen{opacity:1;transform:translateY(0) scale(1)}
+.tool h3{margin:0 0 8px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.input,textarea{flex:1;min-width:220px;padding:10px 12px;border-radius:12px;border:1px solid var(--stroke);background:rgba(255,255,255,.05);color:var(--fg)}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid var(--stroke);font-size:12px;color:var(--muted)}
+.ok{color:var(--ok)} .bad{color:var(--bad)}
+.list{margin:8px 0}
+
+.flex2{display:grid;grid-template-columns:1.2fr 1fr;gap:18px;align-items:start}
+@media (max-width:900px){.grid12{grid-template-columns:1fr}.card{grid-column:auto}.flex2{grid-template-columns:1fr}}
+footer{padding:60px 20px;color:var(--muted);text-align:center}
+
+/* 解鎖控制 */
+.locked{display:none}
+
+/* 偏好簡化動畫 */
+@media (prefers-reduced-motion:reduce){
+  .card,.tool{transition:none}
+  .aur1,.aur2{animation:none}
+}
+</style>
+</head>
+<body>
+<div class="bg"></div><div class="aur1"></div><div class="aur2"></div><div class="noise"></div><div class="gridbg"></div>
+
+<nav>
+  <a href="#hero">防詐騙互動網頁</a>
+  <a href="#overview">總覽</a>
+  <a href="#knowledge">知識</a>
+  <a href="#tools">工具 <span class="badge">Beta</span></a>
+  <a href="#games">小遊戲</a>
+  <a href="#resources">165專區</a>
+</nav>
+<div class="progress" id="progress" title="拖曳以瀏覽"></div>
+<div class="rail" id="rail" title="拖曳以瀏覽"></div>
+<div class="current" id="where">你在：首頁</div>
+
+<header id="hero" data-title="首頁">
+  <div>
+    <h1>防詐騙互動網頁</h1>
+    <p class="lead">你真的了解詐騙嗎？來看看這些內容你是否真的了解。</p>
+    <div class="cta">
+      <a class="btn primary" href="#overview">開始了解</a>
+      <a class="btn" href="#tools">實用小工具（Beta）</a>
+</header>
+
+<section id="overview" data-title="總覽">
+  <span class="eyebrow">總覽</span>
+  <h2>常見型態</h2>
+  <div class="grid12">
+    <div class="card"><h3>釣魚郵件</h3><ul><li>相似域名/拼字</li><li>限時停權</li><li>異常附件</li></ul></div>
+    <div class="card"><h3>簡訊／通訊</h3><ul><li>短網址引導</li><li>轉至私聊群</li><li>轉帳到個人/海外</li></ul></div>
+    <div class="card"><h3>投資／幣圈</h3><ul><li>保證獲利/帶單</li><li>只入金不出金</li><li>要求遠端協助</li></ul></div>
+    <div class="card"><h3>電話與 Deepfake</h3><ul><li>索取 OTP</li><li>變聲/換臉逼匯款</li><li>凍結帳戶恐嚇</li></ul></div>
+  </div>
+</section>
+
+<section id="knowledge" class="locked" data-title="知識">
+  <span class="eyebrow">知識</span>
+  <h2>重點清單 + AI 對策</h2>
+  <div class="grid12">
+    <div class="card"><h3>帳號安全</h3><ul><li>密碼 ≥ 12 碼；管理器</li><li>2FA：Authenticator/金鑰</li><li>登入通知與登入地警示</li></ul></div>
+    <div class="card"><h3>裝置</h3><ul><li>系統/瀏覽器常更新</li><li>Android 關閉未知來源</li><li>公共 Wi-Fi 不交易</li></ul></div>
+    <div class="card"><h3>受害 60 分鐘</h3><ol><li>銀行/支付凍結或止付</li><li>改密碼、登出所有裝置</li><li>保存證據</li><li>通知親友避免二次受害</li></ol></div>
+    <div class="card"><h3>四問模型</h3><ul><li>誰要求</li><li>要做什麼</li><li>為何要快</li><li>哪裡怪</li></ul></div>
+
+    <!-- AI 更進階 -->
+    <div class="card"><h3>AI 冒名視訊辨識</h3>
+      <ul>
+        <li>要求<b>側臉 + 隨機動作序列</b>（摸耳→左看→抬頭）。側臉/耳緣常模糊或鋸齒。</li>
+        <li>檢查唇形音訊延遲。不同步或延遲抖動=風險。</li>
+        <li>要求對方在畫面中<b>手寫當前日期</b>並慢速翻轉。</li>
+        <li>背景與環境雜訊一致性：反光、陰影、髮絲邊緣。</li>
+      </ul>
+    </div>
+    <div class="card"><h3>AI 語音/來電</h3>
+      <ul>
+        <li>改<b>回呼</b>通訊錄紀錄號碼。拒絕通話內轉接。</li>
+        <li>插話打斷、快問慢答測<b>韻律</b>與語速。</li>
+        <li>設<b>安全詞</b>與金額門檻，超過即多人覆核。</li>
+      </ul>
+    </div>
+    <div class="card"><h3>QR / 連結</h3>
+      <ul>
+        <li>陌生 QR 先用相機預覽網址，不直接開啟。</li>
+        <li>不要在聊天軟體裡簽錢包交易。</li>
+        <li>短網址先展開；看<b>可註冊網域</b>再決定。</li>
+      </ul>
+    </div>
+    <div class="card"><h3>加密貨幣安全</h3>
+      <ul>
+        <li>助記詞/私鑰不截圖、不上傳、不複製到雲端。</li>
+        <li>檢查 Approve 授權與合約地址來源。</li>
+        <li>小額提領測試出金，再投入更大金額。</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="tools" class="locked" data-title="工具（Beta）">
+  <span class="eyebrow">工具 <span class="badge">Beta</span></span>
+  <h2>解析與檢核</h2>
+  <div class="tools">
+    <div class="tool">
+      <h3>連結解析</h3>
+      <div class="row"><input id="urlInput" class="input" placeholder="貼上網址"/><button class="btn" id="urlBtn">解析</button></div>
+      <div id="urlOut"></div>
+    </div>
+    <div class="tool">
+      <h3>訊息風險評分</h3>
+      <div class="row"><textarea id="msgInput" rows="4" placeholder="貼上對話或簡訊"></textarea></div>
+      <div class="row"><button class="btn" id="msgBtn">評分</button> <span id="msgBadge" class="badge"></span></div>
+      <div id="msgOut" class="list"></div>
+    </div>
+    <div class="tool">
+      <h3>強密碼／通關詞</h3>
+      <div class="row"><button class="btn" id="pwBtn">16 碼密碼</button><button class="btn" id="ppBtn">6 詞通關詞</button><button class="btn" id="copyBtn">複製</button></div>
+      <div id="pwOut" class="badge"></div>
+    </div>
+    <div class="tool">
+      <h3>Email Header 快檢</h3>
+      <div class="row"><textarea id="hdrInput" rows="6" placeholder="貼上原始標頭（Received / SPF / DKIM / DMARC）"></textarea></div>
+      <div class="row"><button class="btn" id="hdrBtn">檢查</button></div>
+      <div id="hdrOut" class="list"></div>
+    </div>
+    <div class="tool">
+      <h3>Base64／URL</h3>
+      <div class="row"><input id="codecInput" class="input" placeholder="輸入或貼上"/></div>
+      <div class="row"><button class="btn" id="b64e">Base64 編碼</button><button class="btn" id="b64d">Base64 解碼</button><button class="btn" id="urle">URL 編碼</button><button class="btn" id="urld">URL 解碼</button></div>
+      <div id="codecOut" class="badge"></div>
+    </div>
+    <div class="tool">
+      <h3>檔案 SHA-256</h3>
+      <div class="row"><input type="file" id="fileInput"/><button class="btn" id="hashBtn">計算</button></div>
+      <div id="hashOut" class="badge"></div>
+    </div>
+  </div>
+</section>
+
+<section id="games" class="locked" data-title="小遊戲">
+  <span class="eyebrow">小遊戲</span>
+  <h2>Scam or Safe、域名擬真</h2>
+  <div class="tools">
+    <div class="tool">
+      <h3>Scam or Safe</h3>
+      <div class="row"><button class="btn primary" id="startA">開始</button><span>分數：<b id="scoreA">0</b></span><span class="badge">最佳：<b id="bestA">0</b></span></div>
+      <div id="boardA" class="list"></div>
+    </div>
+    <div class="tool">
+      <h3>域名擬真</h3>
+      <div class="row"><button class="btn" id="startB">開始</button><span>正確：<b id="scoreB">0</b></span></div>
+      <div id="boardB" class="list"></div>
+    </div>
+  </div>
+</section>
+
+<section id="resources" class="locked" data-title="165">
+  <span class="eyebrow">165</span>
+  <h2>官方資訊與加入方式</h2>
+  <div class="flex2">
+    <div class="card">
+      <h3>加入 165 官方 LINE</h3>
+      <div class="row">
+        <a class="btn primary" href="https://line.me/R/ti/p/@tw165?from=page&accountId=tw165" target="_blank" rel="noopener">加入</a>
+        <button class="btn" id="copyLine">複製 ID</button><span class="badge">ID：@tw165</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>165 連結</h3>
+      <ul>
+        <li><a href="https://165.npa.gov.tw/#/articles/C" target="_blank" rel="noopener">常見詐騙手法</a></li>
+        <li><a href="https://165.npa.gov.tw/#/articles/1" target="_blank" rel="noopener">新聞快訊</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<footer><small>© 2025</small></footer>
+
+<script>
+/* 設備判定 */
+const isMobile=matchMedia('(max-width:900px)').matches;
+const progress=document.getElementById('progress');
+const rail=document.getElementById('rail');
+const where=document.getElementById('where');
+
+/* 區塊與標題 */
+const sections=[...document.querySelectorAll('header, section')];
+const titles=sections.map(s=>s.dataset.title||s.querySelector('h2,h1')?.textContent||'');
+
+/* 拖拽滾動（頂部/側邊） */
+function scrollToRatio(r){const h=document.body.scrollHeight-innerHeight;scrollTo({top:Math.max(0,Math.min(1,r))*h,behavior:'auto'})}
+function attachDrag(el,horizontal){
+  let down=false;
+  el.addEventListener('pointerdown',e=>{down=true;el.setPointerCapture(e.pointerId);move(e)});
+  addEventListener('pointerup',()=>down=false);
+  el.addEventListener('pointermove',e=>{if(down) move(e)});
+  function move(e){
+    const rect=el.getBoundingClientRect();
+    const ratio=horizontal? (e.clientX-rect.left)/rect.width : (e.clientY-rect.top)/rect.height;
+    scrollToRatio(ratio);
+  }
+}
+if(isMobile){attachDrag(rail,false)}else{attachDrag(progress,true)}
+
+/* 位置指示 + 進度寬度 */
+function updateProgress(){
+  const p=scrollY/(document.body.scrollHeight-innerHeight);
+  progress.style.width=(p*100)+'%';
+  let idx=0;
+  for(let i=0;i<sections.length;i++){
+    const top=sections[i].offsetTop, next=sections[i+1]?.offsetTop ?? 1e12;
+    if(scrollY+innerHeight*0.51>=top && scrollY+innerHeight*0.51<next){idx=i;break}
+  }
+  where.textContent='你在：'+(titles[idx]||'');
+}
+addEventListener('scroll',updateProgress); addEventListener('resize',updateProgress); updateProgress();
+
+/* 逐卡片顯示：進入視窗時以「隊列」逐一顯示 */
+const revealQueue=[];
+let revealing=false;
+function pump(){
+  if(revealing || revealQueue.length===0) return;
+  revealing=true;
+  const el=revealQueue.shift();
+  if(el){el.classList.add('seen')}
+  setTimeout(()=>{revealing=false;pump()},220); // 每 220ms 下一張
+}
+const io=new IntersectionObserver(es=>{
+  const goingDown = es.some(e=>e.isIntersecting && e.boundingClientRect.top>0);
+  es.forEach(e=>{
+    const el=e.target;
+    if(e.isIntersecting && !el.classList.contains('seen')){
+      revealQueue.push(el); pump();
+    }else if(!goingDown){
+      // 往上滑可還原
+      el.classList.remove('seen');
+    }
+  })
+},{threshold:.25});
+document.querySelectorAll('.card,.tool').forEach(el=>io.observe(el));
+
+/* 區塊解鎖：完成當前段（看過所有卡片且到段底）才能進下一段 */
+const blocks=sections.slice(1);
+function unlockNext(i){
+  if(i>=blocks.length-1) return;
+  blocks[i+1].classList.remove('locked');
+}
+function checkUnlock(){
+  for(let i=0;i<blocks.length;i++){
+    const sec=blocks[i];
+    if(sec.classList.contains('locked')) break;
+    const elems=[...sec.querySelectorAll('.card,.tool')];
+    const allSeen=elems.length?elems.every(x=>x.classList.contains('seen')):true;
+    const bottom=sec.offsetTop+sec.offsetHeight*.9;
+    if(allSeen && scrollY+innerHeight>=bottom) unlockNext(i);
+  }
+}
+addEventListener('scroll',checkUnlock); checkUnlock();
+
+/* LINE 複製 */
+document.getElementById('copyLine').onclick=async()=>{try{await navigator.clipboard.writeText('@tw165')}catch{}};
+
+/* 工具：連結解析（強化） */
+const suspiciousTLD=["zip","mov","xyz","top","monster","click","country","gq","cf","ml","quest","kim","rest","cn","ru","life","cam","support","link","live","loan","win","work","fit","top","gift"];
+const shorteners=["bit.ly","goo.gl","t.co","reurl.cc","tinyurl.com","is.gd","cutt.ly","rb.gy","lnk.to","shorturl.at"];
+const brandbait=["apple","google","line","facebook","meta","bank","shopee","paypal","amazon","microsoft","bot","taiwan","binance","okx","bybit","etherscan","opensea","discord","telegram"];
+function registrableDomain(host){
+  const p=host.split('.'); if(p.length<=2) return host;
+  const tlds=["com.tw","net.tw","org.tw","com.cn","co.uk","com.au"];
+  const tail=p.slice(-2).join('.'); const tail3=p.slice(-3).join('.');
+  if(tlds.includes(tail)) return p.slice(-3).join('.');
+  if(tlds.includes(tail3)) return p.slice(-4).join('.');
+  return tail;
+}
+function analyzeUrl(u){
+  let url; try{url=new URL(u)}catch{return {error:"格式無效"}}
+  const host=url.hostname, reg=registrableDomain(host), flags=[];
+  if(shorteners.includes(host)) flags.push("短網址");
+  if(host.includes("xn--")) flags.push("Punycode");
+  if(/^(\d{1,3}\.){3}\d{1,3}$/.test(host)) flags.push("IP 主機");
+  if(/[lI1|]|0|O/.test(host) && /[a-z]/i.test(host)) flags.push("字形近似混淆");
+  if(suspiciousTLD.includes(host.split('.').pop())) flags.push("冷門頂級網域");
+  if(host.replace(reg,'').split('.').filter(Boolean).length>=1) flags.push("多層子網域偽裝");
+  if(/[?&](password|passwd|otp|code|seed|mnemonic|private|key|phrase)=/i.test(url.search)) flags.push("查詢列含敏感參數");
+  if(/account|verify|bonus|giveaway|airdrop|login|secure|staking|wallet|approve|connect|claim|gift|bind|kyc/i.test(url.pathname)) flags.push("誘餌關鍵字");
+  if(brandbait.some(b=>host.includes(b)) && !/^(google\.com|apple\.com|line\.me|facebook\.com|shopee\.tw|bot\.com\.tw|binance\.com|amazon\.com)$/.test(reg)) flags.push("品牌名誘導");
+  return {host,reg,flags,protocol:url.protocol,pathname:url.pathname}
+}
+document.getElementById('urlBtn').onclick=()=>{
+  const v=document.getElementById('urlInput').value.trim();const o=document.getElementById('urlOut');const r=analyzeUrl(v);
+  if(r.error){o.innerHTML=`<span class='bad'>${r.error}</span>`;return}
+  const risk=r.flags.length?`<span class='bad'>風險：${r.flags.join('、')}</span>`:`<span class='ok'>未命中紅旗（仍需人工核對）</span>`;
+  o.innerHTML=`<div>主機：<b>${r.host}</b></div><div>可註冊網域：<b>${r.reg}</b></div><div>協定：${r.protocol}</div><div>路徑：${r.pathname||'/'}</div><div>${risk}</div>`;
+};
+
+/* 訊息風險評分（全集） */
+const patterns=[
+  [/一次性.*?(驗證碼|OTP)/i,'索取驗證碼'],
+  [/(監管|保管)帳戶/i,'監管/保管帳戶'],
+  [/(加速|立即|立刻|限時|最後一天|倒數)/i,'製造急迫'],
+  [/(穩賺不賠|保證獲利|帶單|代操|內線|高報酬|倍數|勝率|訊號|跟單|穩賺)/i,'保證回報/帶單'],
+  [/(加入|加).{0,8}(Line|LINE|群|群組).{0,8}(老師|助理|客服|分析師)/i,'導向私聊群組'],
+  [/(匯款|轉帳|USDT|TRC20|ERC20|比特幣|錢包地址|收款碼)/i,'要求金流'],
+  [/(bit\.ly|reurl|tinyurl|goo\.gl|t\.co|short)/i,'短網址'],
+  [/(安裝|下載).{0,12}(遠端|remote|AnyDesk|TeamViewer)/i,'要求遠端控制'],
+  [/(法院|檢警|海關|客服).{0,12}(凍結|停權|監管)/i,'權威恐嚇'],
+  [/拍.*(身分證|信用卡|存摺|提款卡)/i,'要求證件影像'],
+  [/(驗證|綁定).{0,8}(戶|帳|錢包)/i,'驗證綁定指令'],
+  [/(空投|airdrop|白名單|whitelist)/i,'空投釣魚'],
+  [/(助記詞|seed phrase|private key|私鑰)/i,'要求密鑰/助記詞'],
+  [/(KYC|稅務|代扣|手續費)/i,'假合規藉口'],
+  [/(Discord|Telegram).*(邀請|加群)/i,'導向外部社群'],
+];
+function scoreText(t){
+  let s=0,hits=[];patterns.forEach(([re,label])=>{if(re.test(t)){s++;hits.push(label)}}); 
+  if(/穩賺不賠|私鑰|seed phrase/i.test(t)) s+=2;
+  if(/(演練|測試|教學)/.test(t)) s=Math.max(0,s-1);
+  const level=s>=6?'高風險':s>=3?'中風險':'低風險'; return {s,hits,level}
+}
+document.getElementById('msgBtn').onclick=()=>{
+  const t=document.getElementById('msgInput').value; const out=document.getElementById('msgOut'); const badge=document.getElementById('msgBadge');
+  const r=scoreText(t); badge.textContent=`${r.level}（命中 ${r.s} 項）`; badge.className='badge '+(r.s>=4?'bad':(r.s>=3?'':'ok')); out.textContent=r.hits.length?('命中：'+r.hits.join('、')):'未命中關鍵字';
+};
+
+/* 其他工具 */
+document.getElementById('pwBtn').onclick=()=>{const abc='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*_-';const a=new Uint32Array(16);crypto.getRandomValues(a);document.getElementById('pwOut').textContent=[...a].map(n=>abc[n%abc.length]).join('')}
+document.getElementById('ppBtn').onclick=()=>{const w=["alpha","bravo","candy","delta","ember","flame","galaxy","harbor","ivy","jelly","krypton","lemon","meteor","nova","pearl","quantum","river","solar","tango","ultra","vapor","willow","xenon","yuzu","zephyr","aurora","bamboo","citrus","dawn","echo","frost","gloss","harvest","ion","jade","koala","lotus","mango","nectar","onyx","pluto","quartz","raven","saffron","topaz","umbra","velvet","wave","xylem","yonder","zen"];let out=[];for(let i=0;i<6;i++){const r=new Uint32Array(1);crypto.getRandomValues(r);out.push(w[r[0]%w.length])}document.getElementById('pwOut').textContent=out.join('-')}
+document.getElementById('copyBtn').onclick=async()=>{const v=document.getElementById('pwOut').textContent;if(!v)return;try{await navigator.clipboard.writeText(v)}catch{}}
+document.getElementById('hdrBtn').onclick=()=>{const raw=document.getElementById('hdrInput').value;const out=document.getElementById('hdrOut');if(!raw.trim()){out.textContent='';return}const lines=raw.split(/\r?\n/);const get=r=>lines.find(l=>r.test(l))||'';const from=get(/^From:/i),reply=get(/^Reply-To:/i),spf=get(/^Received-SPF:/i),auth=get(/^Authentication-Results:/i);const dkim=/dkim=.*?(pass|fail|neutral)/i.exec(auth||'');const dmarc=/dmarc=.*?(pass|fail|none)/i.exec(auth||'');const recvd=lines.filter(l=>/^Received:/i.test(l)).length;const tips=[];if(reply&&from&&reply.split('@').pop()!==from.split('@').pop()) tips.push('From/Reply-To 不一致');if(spf&&!/pass/i.test(spf)) tips.push('SPF 非 PASS');if(dkim&&dkim[1]!=='pass') tips.push('DKIM 非 PASS');if(dmarc&&dmarc[1]!=='pass') tips.push('DMARC 非 PASS');if(recvd>6) tips.push('轉送節點過多');out.innerHTML=`<div>From：${from||'無'}</div><div>Reply-To：${reply||'無'}</div><div>Received-SPF：${spf||'無'}</div><div>Auth-Results：${auth||'無'}</div><div>Received 節點：${recvd}</div><div>${tips.length?'<span class="bad">紅旗：'+tips.join('、')+'</span>':'<span class="ok">未命中紅旗</span>'}</div>`}
+document.getElementById('b64e').onclick=()=>{const v=document.getElementById('codecInput').value;try{document.getElementById('codecOut').textContent=btoa(unescape(encodeURIComponent(v)))}catch{document.getElementById('codecOut').textContent='錯誤'}}
+document.getElementById('b64d').onclick=()=>{const v=document.getElementById('codecInput').value;try{document.getElementById('codecOut').textContent=decodeURIComponent(escape(atob(v)))}catch{document.getElementById('codecOut').textContent='錯誤'}}
+document.getElementById('urle').onclick=()=>{document.getElementById('codecOut').textContent=encodeURIComponent(document.getElementById('codecInput').value)}
+document.getElementById('urld').onclick=()=>{const v=document.getElementById('codecInput').value;try{document.getElementById('codecOut').textContent=decodeURIComponent(v)}catch{document.getElementById('codecOut').textContent='錯誤'}}
+document.getElementById('hashBtn').onclick=async()=>{const f=document.getElementById('fileInput').files[0];const out=document.getElementById('hashOut');if(!f){out.textContent='';return}const buf=await f.arrayBuffer();const d=await crypto.subtle.digest('SHA-256',buf);out.textContent=[...new Uint8Array(d)].map(b=>b.toString(16).padStart(2,'0')).join('')}
+
+/* 小遊戲（同前版，保持） */
+const scenarios=[{t:'買家要你改加 Line 才能下單',scam:true,why:'離開平台失保障'},{t:'加入Line老師帶單，穩賺不賠',scam:true,why:'保證獲利/帶單詐騙'},{t:'銀行簡訊附連結要驗證',scam:true,why:'不點連結登入'},{t:'官方 App 內客服更新工單',scam:false,why:'官方流程'},{t:'朋友借錢拒絕視訊確認',scam:true,why:'可能冒名'},{t:'先小額提領測試再投入',scam:false,why:'風控正確'},{t:'傳外部表單要求資料',scam:true,why:'離開平台風險高'},{t:'主動到官網登入後收到異常通知',scam:false,why:'主動核對'}];
+const boardA=document.getElementById('boardA'),scoreA=document.getElementById('scoreA'),bestA=document.getElementById('bestA'),startA=document.getElementById('startA');if(bestA) bestA.textContent=localStorage.getItem('bestScamScore')||0;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function newRoundA(){if(!boardA)return;boardA.innerHTML='';let s=0;scoreA.textContent=s;shuffle([...scenarios]).forEach((sc,i)=>{const row=document.createElement('div');row.className='tool seen';row.innerHTML=`<div>${i+1}. ${sc.t}</div><div class='row'><button class='btn'>詐騙</button><button class='btn'>安全</button><span class='badge'></span></div>`;const bs=row.querySelectorAll('button');const tip=row.querySelector('.badge');bs[0].onclick=()=>ans(true);bs[1].onclick=()=>ans(false);function ans(v){const ok=v===sc.scam;tip.textContent=(ok?'正確：':'錯誤：')+sc.why;tip.className='badge '+(ok?'ok':'bad');if(ok){s++;scoreA.textContent=s;const best=Math.max(Number(localStorage.getItem('bestScamScore')||0),s);localStorage.setItem('bestScamScore',best);bestA.textContent=best}};boardA.appendChild(row)})}
+startA?.addEventListener('click',newRoundA);
+
+const brands=[{brand:'Apple',real:'apple.com',fake:['app1e.com','apple.com.secure-login.net']},{brand:'Google',real:'google.com',fake:['goog1e.com','google.account.verify-online.com']},{brand:'LINE',real:'line.me',fake:['line-login.me.co','secure-line.verify.cc']},{brand:'臺灣銀行',real:'bot.com.tw',fake:['tw-bankbot.com','bot.com-tw.co']},{brand:'Shopee',real:'shopee.tw',fake:['sh0pee.tw','pay-shopee.tw.co']}];
+const boardB=document.getElementById('boardB'),scoreB=document.getElementById('scoreB'),startB=document.getElementById('startB');
+startB?.addEventListener('click',()=>{if(!boardB)return;scoreB.textContent='0';boardB.innerHTML='';shuffle([...brands]).forEach((b,i)=>{const opts=[b.real,...b.fake];shuffle(opts);const wrap=document.createElement('div');wrap.className='tool seen';wrap.innerHTML=`<div>${i+1}. ${b.brand} 官方域名？</div>`;const row=document.createElement('div');row.className='row';opts.forEach(o=>{const k=document.createElement('button');k.className='btn';k.textContent=o;k.onclick=()=>{if(o===b.real){k.classList.add('ok');scoreB.textContent=String(Number(scoreB.textContent)+1)}else{k.classList.add('bad')}};row.appendChild(k)});wrap.appendChild(row);boardB.appendChild(wrap)})});
+</script>
+</body>
+</html>
