@@ -12,7 +12,7 @@
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0;color:var(--fg);font:16px/1.6 ui-sans-serif,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,"Noto Sans TC"}
-/* 背景：多層極光 + 噪點 + 網格 */
+/* 背景與裝飾 */
 .bg{position:fixed;inset:-10% -10% -10% -10%;z-index:-3;
   background:
     radial-gradient(1200px 700px at 80% -10%,#162131 0%,transparent 60%),
@@ -29,7 +29,7 @@ body{margin:0;color:var(--fg);font:16px/1.6 ui-sans-serif,-apple-system,BlinkMac
   conic-gradient(from 0turn at 50% 50%,#ffffff10 0 25%,#0000 0 50%,#ffffff10 0 75%,#0000 0) 0 0/22px 22px}
 
 /* 導覽與位置提示 */
-nav{position:fixed;top:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:center;gap:26px;
+nav{position:fixed;top:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:center;gap:22px;
   background:#0b121acc;border-bottom:1px solid var(--stroke);backdrop-filter:blur(8px);z-index:60}
 nav a{color:var(--fg);text-decoration:none;font-weight:600;opacity:.92}
 nav a:hover{opacity:1}
@@ -63,6 +63,7 @@ h2{font-size:clamp(30px,4.5vw,52px);margin:0 0 14px}
 .card:hover{transform:translateY(-2px) scale(1.01)}
 .card h3{margin-top:0}
 
+/* 工具卡 */
 .tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px}
 .tool{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
   border:1px solid var(--stroke);border-radius:18px;padding:16px;box-shadow:0 10px 24px var(--shadow);
@@ -75,12 +76,17 @@ h2{font-size:clamp(30px,4.5vw,52px);margin:0 0 14px}
 .ok{color:var(--ok)} .bad{color:var(--bad)}
 .list{margin:8px 0}
 
+/* 雙欄 */
 .flex2{display:grid;grid-template-columns:1.2fr 1fr;gap:18px;align-items:start}
 @media (max-width:900px){.grid12{grid-template-columns:1fr}.card{grid-column:auto}.flex2{grid-template-columns:1fr}}
 footer{padding:60px 20px;color:var(--muted);text-align:center}
 
 /* 解鎖控制 */
 .locked{display:none}
+
+/* 展開/收合 */
+.details{background:var(--panel);border:1px solid var(--stroke);border-radius:16px;padding:16px;margin:12px 0}
+.details summary{cursor:pointer;font-weight:600}
 
 /* 偏好簡化動畫 */
 @media (prefers-reduced-motion:reduce){
@@ -93,12 +99,14 @@ footer{padding:60px 20px;color:var(--muted);text-align:center}
 <div class="bg"></div><div class="aur1"></div><div class="aur2"></div><div class="noise"></div><div class="gridbg"></div>
 
 <nav>
-  <a href="#hero">防詐騙互動網頁</a>
+  <a href="#hero">首頁</a>
   <a href="#overview">總覽</a>
   <a href="#knowledge">知識</a>
   <a href="#tools">工具 <span class="badge">Beta</span></a>
   <a href="#games">小遊戲</a>
-  <a href="#resources">165專區</a>
+  <a href="#cases">案例</a>
+  <a href="#faq">FAQ</a>
+  <a href="#resources">165</a>
 </nav>
 <div class="progress" id="progress" title="拖曳以瀏覽"></div>
 <div class="rail" id="rail" title="拖曳以瀏覽"></div>
@@ -107,60 +115,63 @@ footer{padding:60px 20px;color:var(--muted);text-align:center}
 <header id="hero" data-title="首頁">
   <div>
     <h1>防詐騙互動網頁</h1>
-    <p class="lead">你真的了解詐騙嗎？來看看這些內容你是否真的了解。</p>
+    <p class="lead">分段解鎖、逐卡顯示、AI 對策、實用工具、案例演練。</p>
     <div class="cta">
       <a class="btn primary" href="#overview">開始了解</a>
       <a class="btn" href="#tools">實用小工具（Beta）</a>
+    </div>
+  </div>
 </header>
 
 <section id="overview" data-title="總覽">
   <span class="eyebrow">總覽</span>
-  <h2>常見型態</h2>
+  <h2>常見型態 + 新趨勢</h2>
   <div class="grid12">
     <div class="card"><h3>釣魚郵件</h3><ul><li>相似域名/拼字</li><li>限時停權</li><li>異常附件</li></ul></div>
     <div class="card"><h3>簡訊／通訊</h3><ul><li>短網址引導</li><li>轉至私聊群</li><li>轉帳到個人/海外</li></ul></div>
     <div class="card"><h3>投資／幣圈</h3><ul><li>保證獲利/帶單</li><li>只入金不出金</li><li>要求遠端協助</li></ul></div>
     <div class="card"><h3>電話與 Deepfake</h3><ul><li>索取 OTP</li><li>變聲/換臉逼匯款</li><li>凍結帳戶恐嚇</li></ul></div>
+    <div class="card"><h3>購物平台仿冒</h3><ul><li>補差額/解凍帳戶</li><li>外連到第三方客服</li><li>假退款頁面</li></ul></div>
+    <div class="card"><h3>社交工程</h3><ul><li>先建立信任</li><li>逐步索取資訊</li><li>情緒操控</li></ul></div>
   </div>
 </section>
 
 <section id="knowledge" class="locked" data-title="知識">
   <span class="eyebrow">知識</span>
-  <h2>重點清單 + AI 對策</h2>
+  <h2>重點清單 + 深入 AI 對策</h2>
   <div class="grid12">
-    <div class="card"><h3>帳號安全</h3><ul><li>密碼 ≥ 12 碼；管理器</li><li>2FA：Authenticator/金鑰</li><li>登入通知與登入地警示</li></ul></div>
-    <div class="card"><h3>裝置</h3><ul><li>系統/瀏覽器常更新</li><li>Android 關閉未知來源</li><li>公共 Wi-Fi 不交易</li></ul></div>
-    <div class="card"><h3>受害 60 分鐘</h3><ol><li>銀行/支付凍結或止付</li><li>改密碼、登出所有裝置</li><li>保存證據</li><li>通知親友避免二次受害</li></ol></div>
+    <div class="card"><h3>帳號安全</h3><ul><li>密碼 ≥ 12 碼；管理器</li><li>2FA：Authenticator/金鑰</li><li>登入通知與登入地警示</li><li>分層帳號與最小權限</li></ul></div>
+    <div class="card"><h3>裝置</h3><ul><li>系統/瀏覽器常更新</li><li>Android 關閉未知來源</li><li>公共 Wi-Fi 不交易</li><li>行動裝置鎖螢幕與SIM鎖</li></ul></div>
+    <div class="card"><h3>受害 60 分鐘</h3><ol><li>聯絡金融機構凍結/止付</li><li>改密碼、登出所有裝置</li><li>保留證據（錄影/截圖/紀錄）</li><li>通知親友避免二次受害</li></ol></div>
     <div class="card"><h3>四問模型</h3><ul><li>誰要求</li><li>要做什麼</li><li>為何要快</li><li>哪裡怪</li></ul></div>
 
-    <!-- AI 更進階 -->
-    <div class="card"><h3>AI 冒名視訊辨識</h3>
+    <div class="card"><h3>AI 視訊鑑別</h3>
       <ul>
         <li>要求<b>側臉 + 隨機動作序列</b>（摸耳→左看→抬頭）。側臉/耳緣常模糊或鋸齒。</li>
-        <li>檢查唇形音訊延遲。不同步或延遲抖動=風險。</li>
-        <li>要求對方在畫面中<b>手寫當前日期</b>並慢速翻轉。</li>
-        <li>背景與環境雜訊一致性：反光、陰影、髮絲邊緣。</li>
+        <li>唇形不同步、眨眼頻率不自然、髮絲邊緣抖動。</li>
+        <li>要求在畫面中<b>手寫當日日期</b>並慢速翻轉。</li>
+        <li>背景反光、陰影方向與聲音環境是否一致。</li>
       </ul>
     </div>
     <div class="card"><h3>AI 語音/來電</h3>
       <ul>
-        <li>改<b>回呼</b>通訊錄紀錄號碼。拒絕通話內轉接。</li>
-        <li>插話打斷、快問慢答測<b>韻律</b>與語速。</li>
-        <li>設<b>安全詞</b>與金額門檻，超過即多人覆核。</li>
+        <li>改<b>回呼</b>通訊錄紀錄號碼，拒絕通話內轉接。</li>
+        <li>插話、打斷、提問冷門共同記憶。</li>
+        <li>設定<b>安全詞</b>與金額門檻，超過即多人覆核。</li>
       </ul>
     </div>
-    <div class="card"><h3>QR / 連結</h3>
+    <div class="card"><h3>連結 / QR</h3>
       <ul>
-        <li>陌生 QR 先用相機預覽網址，不直接開啟。</li>
-        <li>不要在聊天軟體裡簽錢包交易。</li>
-        <li>短網址先展開；看<b>可註冊網域</b>再決定。</li>
+        <li>聊天軟體内不簽錢包交易。</li>
+        <li>短網址先展開；看<b>可註冊網域</b>。</li>
+        <li>陌生 QR 先預覽網址，不直接開啟。</li>
       </ul>
     </div>
     <div class="card"><h3>加密貨幣安全</h3>
       <ul>
-        <li>助記詞/私鑰不截圖、不上傳、不複製到雲端。</li>
-        <li>檢查 Approve 授權與合約地址來源。</li>
-        <li>小額提領測試出金，再投入更大金額。</li>
+        <li>助記詞/私鑰不截圖、不上傳到雲端。</li>
+        <li>檢查 Approve 授權與合約來源。</li>
+        <li>先小額出金測試，再投入更大金額。</li>
       </ul>
     </div>
   </div>
@@ -192,12 +203,46 @@ footer{padding:60px 20px;color:var(--muted);text-align:center}
       <div class="row"><button class="btn" id="hdrBtn">檢查</button></div>
       <div id="hdrOut" class="list"></div>
     </div>
+
+    <!-- 新工具 1：TW 身分證檢核 -->
+    <div class="tool">
+      <h3>身分證字號檢核（TW）</h3>
+      <div class="row"><input id="twid" class="input" placeholder="例如 A123456789"/><button class="btn" id="twidBtn">檢核</button></div>
+      <div id="twidOut" class="badge"></div>
+    </div>
+
+    <!-- 新工具 2：信用卡 Luhn -->
+    <div class="tool">
+      <h3>信用卡 Luhn 檢查</h3>
+      <div class="row"><input id="cc" class="input" placeholder="輸入卡號（僅做演算法測試）"/><button class="btn" id="ccBtn">檢查</button></div>
+      <div id="ccOut" class="badge"></div>
+    </div>
+
+    <!-- 新工具 3：相似字與距離 -->
+    <div class="tool">
+      <h3>相似字/字串距離</h3>
+      <div class="row"><input id="s1" class="input" placeholder="apple.com"/><input id="s2" class="input" placeholder="app1e.com"/></div>
+      <div class="row"><button class="btn" id="simBtn">分析</button></div>
+      <div id="simOut" class="list"></div>
+    </div>
+
+    <!-- 新工具 4：圖片去 EXIF（隱私） -->
+    <div class="tool">
+      <h3>圖片去除 EXIF</h3>
+      <div class="row"><input type="file" id="exifFile" accept="image/*"/><button class="btn" id="exifBtn">產生無EXIF圖片</button></div>
+      <div id="exifOut" class="list"></div>
+      <canvas id="exifCanvas" style="display:none"></canvas>
+    </div>
+
+    <!-- 編解碼 -->
     <div class="tool">
       <h3>Base64／URL</h3>
       <div class="row"><input id="codecInput" class="input" placeholder="輸入或貼上"/></div>
       <div class="row"><button class="btn" id="b64e">Base64 編碼</button><button class="btn" id="b64d">Base64 解碼</button><button class="btn" id="urle">URL 編碼</button><button class="btn" id="urld">URL 解碼</button></div>
       <div id="codecOut" class="badge"></div>
     </div>
+
+    <!-- 檔案雜湊 -->
     <div class="tool">
       <h3>檔案 SHA-256</h3>
       <div class="row"><input type="file" id="fileInput"/><button class="btn" id="hashBtn">計算</button></div>
@@ -223,6 +268,25 @@ footer{padding:60px 20px;color:var(--muted);text-align:center}
   </div>
 </section>
 
+<section id="cases" class="locked" data-title="案例">
+  <span class="eyebrow">案例</span>
+  <h2>情境腳本與對應話術</h2>
+  <div class="grid12">
+    <div class="card"><h3>假客服退款</h3><ul><li>話術：「帳戶異常需驗證，請點連結登入」</li><li>對應：自己輸入官網網址登入；拒點連結。</li><li>升級：要求遠端協助＝直接掛斷。</li></ul></div>
+    <div class="card"><h3>投資帶單</h3><ul><li>話術：「保證獲利，先小額試單」</li><li>對應：要求出金證明與監管資料；不可離開官方平台。</li><li>升級：加 LINE 群、KYC 表單＝拒絕。</li></ul></div>
+    <div class="card"><h3>親友急用錢</h3><ul><li>話術：「手機壞了/臨時要用錢，快轉帳」</li><li>對應：改回呼通訊錄號碼；視訊側臉+隨機動作。</li><li>升級：堅持不視訊＝高風險。</li></ul></div>
+    <div class="card"><h3>公家機關恐嚇</h3><ul><li>話術：「涉洗錢需凍結監管帳戶」</li><li>對應：國家單位不會要求轉帳到個人或海外。</li><li>升級：要求錄口供＋轉帳＝詐騙。</li></ul></div>
+  </div>
+</section>
+
+<section id="faq" class="locked" data-title="FAQ">
+  <span class="eyebrow">FAQ</span>
+  <h2>常見問題</h2>
+  <div class="details"><summary>有人傳 QR 叫我掃怎麼辦？</summary><div>先用相機預覽網址，不直接開啟；必要時在「連結解析」貼上檢查。</div></div>
+  <div class="details"><summary>朋友借錢但長相怪怪的？</summary><div>要求側臉與隨機動作；改回呼通訊錄號碼；金額超過門檻要多人覆核。</div></div>
+  <div class="details"><summary>投資社群保證獲利可信嗎？</summary><div>保證獲利是經典紅旗；先確認可出金且平台受監管，仍不可離站交易。</div></div>
+</section>
+
 <section id="resources" class="locked" data-title="165">
   <span class="eyebrow">165</span>
   <h2>官方資訊與加入方式</h2>
@@ -244,21 +308,17 @@ footer{padding:60px 20px;color:var(--muted);text-align:center}
   </div>
 </section>
 
-
 <footer><small>© 2025</small></footer>
 
 <script>
-/* 設備判定 */
+/* 裝置判定與拖拽滾動 */
 const isMobile=matchMedia('(max-width:900px)').matches;
 const progress=document.getElementById('progress');
 const rail=document.getElementById('rail');
 const where=document.getElementById('where');
-
-/* 區塊與標題 */
 const sections=[...document.querySelectorAll('header, section')];
 const titles=sections.map(s=>s.dataset.title||s.querySelector('h2,h1')?.textContent||'');
 
-/* 拖拽滾動（頂部/側邊） */
 function scrollToRatio(r){const h=document.body.scrollHeight-innerHeight;scrollTo({top:Math.max(0,Math.min(1,r))*h,behavior:'auto'})}
 function attachDrag(el,horizontal){
   let down=false;
@@ -273,7 +333,6 @@ function attachDrag(el,horizontal){
 }
 if(isMobile){attachDrag(rail,false)}else{attachDrag(progress,true)}
 
-/* 位置指示 + 進度寬度 */
 function updateProgress(){
   const p=scrollY/(document.body.scrollHeight-innerHeight);
   progress.style.width=(p*100)+'%';
@@ -286,53 +345,51 @@ function updateProgress(){
 }
 addEventListener('scroll',updateProgress); addEventListener('resize',updateProgress); updateProgress();
 
-/* 逐卡片顯示：進入視窗時以「隊列」逐一顯示 */
-const revealQueue=[];
-let revealing=false;
-function pump(){
-  if(revealing || revealQueue.length===0) return;
-  revealing=true;
-  const el=revealQueue.shift();
-  if(el){el.classList.add('seen')}
-  setTimeout(()=>{revealing=false;pump()},220); // 每 220ms 下一張
+/* 慢滑逐張、快滑即時全亮 */
+let lastY = scrollY, lastT = performance.now();
+const queue = []; let ticking = false;
+function flushOne(){ if(!queue.length) return; const el=queue.shift(); el.classList.add('seen'); if(queue.length) setTimeout(flushOne,180); }
+function instantRevealInView(buffer=1.2){
+  document.querySelectorAll('.card,.tool').forEach(el=>{
+    if(el.classList.contains('seen')) return;
+    const r=el.getBoundingClientRect();
+    if(r.top < innerHeight*buffer && r.bottom > -innerHeight*.2) el.classList.add('seen');
+  });
 }
-const io=new IntersectionObserver(es=>{
-  const goingDown = es.some(e=>e.isIntersecting && e.boundingClientRect.top>0);
-  es.forEach(e=>{
-    const el=e.target;
-    if(e.isIntersecting && !el.classList.contains('seen')){
-      revealQueue.push(el); pump();
-    }else if(!goingDown){
-      // 往上滑可還原
-      el.classList.remove('seen');
-    }
-  })
-},{threshold:.25});
-document.querySelectorAll('.card,.tool').forEach(el=>io.observe(el));
+const obs=new IntersectionObserver((entries)=>{
+  const now=performance.now(); const dy=Math.abs(scrollY-lastY); const dt=now-lastT;
+  const fast = dy>innerHeight*.5 || dt<60;
+  if(fast){ instantRevealInView(1.6); }
+  else{
+    entries.forEach(e=>{ if(e.isIntersecting && !e.target.classList.contains('seen')) queue.push(e.target); });
+    if(!ticking){ ticking=true; requestAnimationFrame(()=>{ flushOne(); ticking=false; }); }
+  }
+  lastY=scrollY; lastT=now;
+},{threshold:.2});
+document.querySelectorAll('.card,.tool').forEach(el=>obs.observe(el));
 
-/* 區塊解鎖：完成當前段（看過所有卡片且到段底）才能進下一段 */
-const blocks=sections.slice(1);
-function unlockNext(i){
-  if(i>=blocks.length-1) return;
-  blocks[i+1].classList.remove('locked');
-}
+/* 解鎖：看過≥70% 或滑過75% */
+const blockSections=[...document.querySelectorAll('section')];
+function unlockNext(i){ if(i>=blockSections.length-1) return; blockSections[i+1].classList.remove('locked'); }
 function checkUnlock(){
-  for(let i=0;i<blocks.length;i++){
-    const sec=blocks[i];
+  for(let i=0;i<blockSections.length;i++){
+    const sec=blockSections[i];
     if(sec.classList.contains('locked')) break;
     const elems=[...sec.querySelectorAll('.card,.tool')];
-    const allSeen=elems.length?elems.every(x=>x.classList.contains('seen')):true;
-    const bottom=sec.offsetTop+sec.offsetHeight*.9;
-    if(allSeen && scrollY+innerHeight>=bottom) unlockNext(i);
+    const seen=elems.filter(x=>x.classList.contains('seen')).length;
+    const enough=elems.length ? (seen/elems.length>=.7) : true;
+    const passed=scrollY+innerHeight>=sec.offsetTop+sec.offsetHeight*.75;
+    if(enough || passed) unlockNext(i);
   }
 }
-addEventListener('scroll',checkUnlock); checkUnlock();
+document.querySelectorAll('#knowledge,#tools,#games,#cases,#faq,#resources').forEach(s=>s.classList.add('locked'));
+addEventListener('scroll',checkUnlock); addEventListener('resize',checkUnlock); checkUnlock();
 
-/* LINE 複製 */
+/* 工具：LINE ID 複製 */
 document.getElementById('copyLine').onclick=async()=>{try{await navigator.clipboard.writeText('@tw165')}catch{}};
 
-/* 工具：連結解析（強化） */
-const suspiciousTLD=["zip","mov","xyz","top","monster","click","country","gq","cf","ml","quest","kim","rest","cn","ru","life","cam","support","link","live","loan","win","work","fit","top","gift"];
+/* 工具：連結解析 */
+const suspiciousTLD=["zip","mov","xyz","top","monster","click","country","gq","cf","ml","quest","kim","rest","cn","ru","life","cam","support","link","live","loan","win","work","fit","gift"];
 const shorteners=["bit.ly","goo.gl","t.co","reurl.cc","tinyurl.com","is.gd","cutt.ly","rb.gy","lnk.to","shorturl.at"];
 const brandbait=["apple","google","line","facebook","meta","bank","shopee","paypal","amazon","microsoft","bot","taiwan","binance","okx","bybit","etherscan","opensea","discord","telegram"];
 function registrableDomain(host){
@@ -364,7 +421,7 @@ document.getElementById('urlBtn').onclick=()=>{
   o.innerHTML=`<div>主機：<b>${r.host}</b></div><div>可註冊網域：<b>${r.reg}</b></div><div>協定：${r.protocol}</div><div>路徑：${r.pathname||'/'}</div><div>${risk}</div>`;
 };
 
-/* 訊息風險評分（全集） */
+/* 訊息風險評分 */
 const patterns=[
   [/一次性.*?(驗證碼|OTP)/i,'索取驗證碼'],
   [/(監管|保管)帳戶/i,'監管/保管帳戶'],
@@ -393,7 +450,7 @@ document.getElementById('msgBtn').onclick=()=>{
   const r=scoreText(t); badge.textContent=`${r.level}（命中 ${r.s} 項）`; badge.className='badge '+(r.s>=4?'bad':(r.s>=3?'':'ok')); out.textContent=r.hits.length?('命中：'+r.hits.join('、')):'未命中關鍵字';
 };
 
-/* 其他工具 */
+/* 其他工具：密碼/通關詞、編解碼、雜湊 */
 document.getElementById('pwBtn').onclick=()=>{const abc='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*_-';const a=new Uint32Array(16);crypto.getRandomValues(a);document.getElementById('pwOut').textContent=[...a].map(n=>abc[n%abc.length]).join('')}
 document.getElementById('ppBtn').onclick=()=>{const w=["alpha","bravo","candy","delta","ember","flame","galaxy","harbor","ivy","jelly","krypton","lemon","meteor","nova","pearl","quantum","river","solar","tango","ultra","vapor","willow","xenon","yuzu","zephyr","aurora","bamboo","citrus","dawn","echo","frost","gloss","harvest","ion","jade","koala","lotus","mango","nectar","onyx","pluto","quartz","raven","saffron","topaz","umbra","velvet","wave","xylem","yonder","zen"];let out=[];for(let i=0;i<6;i++){const r=new Uint32Array(1);crypto.getRandomValues(r);out.push(w[r[0]%w.length])}document.getElementById('pwOut').textContent=out.join('-')}
 document.getElementById('copyBtn').onclick=async()=>{const v=document.getElementById('pwOut').textContent;if(!v)return;try{await navigator.clipboard.writeText(v)}catch{}}
@@ -404,13 +461,94 @@ document.getElementById('urle').onclick=()=>{document.getElementById('codecOut')
 document.getElementById('urld').onclick=()=>{const v=document.getElementById('codecInput').value;try{document.getElementById('codecOut').textContent=decodeURIComponent(v)}catch{document.getElementById('codecOut').textContent='錯誤'}}
 document.getElementById('hashBtn').onclick=async()=>{const f=document.getElementById('fileInput').files[0];const out=document.getElementById('hashOut');if(!f){out.textContent='';return}const buf=await f.arrayBuffer();const d=await crypto.subtle.digest('SHA-256',buf);out.textContent=[...new Uint8Array(d)].map(b=>b.toString(16).padStart(2,'0')).join('')}
 
-/* 小遊戲（同前版，保持） */
+/* 新工具：TW 身分證檢核 */
+function checkTWID(id){
+  id=id.toUpperCase().trim();
+  const map={A:10,B:11,C:12,D:13,E:14,F:15,G:16,H:17,I:34,J:18,K:19,L:20,M:21,N:22,O:35,P:23,Q:24,R:25,S:26,T:27,U:28,V:29,W:32,X:30,Y:31,Z:33};
+  if(!/^[A-Z][12]\d{8}$/.test(id)) return false;
+  const code=map[id[0]]; const nums=[Math.floor(code/10),code%10,...id.slice(1).split('').map(n=>+n)];
+  const weights=[1,9,8,7,6,5,4,3,2,1,1];
+  const sum=nums.reduce((s,n,i)=>s+n*weights[i],0);
+  return sum%10===0;
+}
+document.getElementById('twidBtn').onclick=()=>{
+  const v=document.getElementById('twid').value; const ok=checkTWID(v);
+  document.getElementById('twidOut').textContent= ok?'格式與檢核通過':'格式或檢核失敗';
+  document.getElementById('twidOut').className='badge '+(ok?'ok':'bad');
+}
+
+/* 新工具：信用卡 Luhn */
+function luhn(num){
+  const s = (num.replace(/\s|-/g,''));
+  if(!/^\d{12,19}$/.test(s)) return false;
+  let sum=0, alt=false;
+  for(let i=s.length-1;i>=0;i--){
+    let n=parseInt(s[i],10);
+    if(alt){ n*=2; if(n>9) n-=9; }
+    sum+=n; alt=!alt;
+  }
+  return sum%10===0;
+}
+document.getElementById('ccBtn').onclick=()=>{
+  const v=document.getElementById('cc').value;
+  const ok=luhn(v);
+  document.getElementById('ccOut').textContent= ok?'Luhn 通過（僅代表數字合法）':'Luhn 未通過';
+  document.getElementById('ccOut').className='badge '+(ok?'ok':'bad');
+}
+
+/* 新工具：相似字與距離（Levenshtein + homoglyph 探測） */
+const homoMap={'0':'O','1':'l','l':'1','I':'l','O':'0','S':'5','5':'S','B':'8','8':'B'};
+function lev(a,b){
+  const m=a.length,n=b.length; const d=Array.from({length:m+1},(_,i)=>Array(n+1).fill(0));
+  for(let i=0;i<=m;i++) d[i][0]=i; for(let j=0;j<=n;j++) d[0][j]=j;
+  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++){
+    const cost = a[i-1]===b[j-1]?0:1;
+    d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+cost);
+  }
+  return d[m][n];
+}
+function homoglyphHints(a,b){
+  const hits=[]; const minLen=Math.min(a.length,b.length);
+  for(let i=0;i<minLen;i++){
+    const x=a[i],y=b[i];
+    if(homoMap[x]===y || homoMap[y]===x){ hits.push(`${x}↔${y}`); }
+  }
+  return hits;
+}
+document.getElementById('simBtn').onclick=()=>{
+  const s1=document.getElementById('s1').value.trim();
+  const s2=document.getElementById('s2').value.trim();
+  if(!s1||!s2){document.getElementById('simOut').textContent='';return}
+  const distance=lev(s1,s2);
+  const hints=homoglyphHints(s1,s2);
+  document.getElementById('simOut').innerHTML=`<div>距離：<b>${distance}</b>（越小越像）</div><div>可疑相似字：${hints.length?hints.join('、'):'無'}</div>`;
+}
+
+/* 新工具：圖片去 EXIF（用 canvas 重存） */
+document.getElementById('exifBtn').onclick=()=>{
+  const f=document.getElementById('exifFile').files?.[0];
+  const out=document.getElementById('exifOut'); const cv=document.getElementById('exifCanvas');
+  if(!f){out.textContent='請選擇圖片';return}
+  const img=new Image(); img.onload=()=>{
+    cv.width=img.naturalWidth; cv.height=img.naturalHeight;
+    const ctx=cv.getContext('2d'); ctx.drawImage(img,0,0);
+    cv.toBlob(b=>{
+      const url=URL.createObjectURL(b); const a=document.createElement('a');
+      a.href=url; a.download=f.name.replace(/\.(jpe?g|png|webp)$/i,'')+'_noEXIF.png';
+      a.click(); URL.revokeObjectURL(url);
+    },'image/png',0.95);
+    out.innerHTML='<span class="ok">已產生無 EXIF 圖片（PNG）</span>';
+  };
+  img.onerror=()=>{out.innerHTML='<span class="bad">讀取失敗</span>'};
+  img.src=URL.createObjectURL(f);
+}
+
+/* 小遊戲 */
 const scenarios=[{t:'買家要你改加 Line 才能下單',scam:true,why:'離開平台失保障'},{t:'加入Line老師帶單，穩賺不賠',scam:true,why:'保證獲利/帶單詐騙'},{t:'銀行簡訊附連結要驗證',scam:true,why:'不點連結登入'},{t:'官方 App 內客服更新工單',scam:false,why:'官方流程'},{t:'朋友借錢拒絕視訊確認',scam:true,why:'可能冒名'},{t:'先小額提領測試再投入',scam:false,why:'風控正確'},{t:'傳外部表單要求資料',scam:true,why:'離開平台風險高'},{t:'主動到官網登入後收到異常通知',scam:false,why:'主動核對'}];
 const boardA=document.getElementById('boardA'),scoreA=document.getElementById('scoreA'),bestA=document.getElementById('bestA'),startA=document.getElementById('startA');if(bestA) bestA.textContent=localStorage.getItem('bestScamScore')||0;
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function newRoundA(){if(!boardA)return;boardA.innerHTML='';let s=0;scoreA.textContent=s;shuffle([...scenarios]).forEach((sc,i)=>{const row=document.createElement('div');row.className='tool seen';row.innerHTML=`<div>${i+1}. ${sc.t}</div><div class='row'><button class='btn'>詐騙</button><button class='btn'>安全</button><span class='badge'></span></div>`;const bs=row.querySelectorAll('button');const tip=row.querySelector('.badge');bs[0].onclick=()=>ans(true);bs[1].onclick=()=>ans(false);function ans(v){const ok=v===sc.scam;tip.textContent=(ok?'正確：':'錯誤：')+sc.why;tip.className='badge '+(ok?'ok':'bad');if(ok){s++;scoreA.textContent=s;const best=Math.max(Number(localStorage.getItem('bestScamScore')||0),s);localStorage.setItem('bestScamScore',best);bestA.textContent=best}};boardA.appendChild(row)})}
 startA?.addEventListener('click',newRoundA);
-
 const brands=[{brand:'Apple',real:'apple.com',fake:['app1e.com','apple.com.secure-login.net']},{brand:'Google',real:'google.com',fake:['goog1e.com','google.account.verify-online.com']},{brand:'LINE',real:'line.me',fake:['line-login.me.co','secure-line.verify.cc']},{brand:'臺灣銀行',real:'bot.com.tw',fake:['tw-bankbot.com','bot.com-tw.co']},{brand:'Shopee',real:'shopee.tw',fake:['sh0pee.tw','pay-shopee.tw.co']}];
 const boardB=document.getElementById('boardB'),scoreB=document.getElementById('scoreB'),startB=document.getElementById('startB');
 startB?.addEventListener('click',()=>{if(!boardB)return;scoreB.textContent='0';boardB.innerHTML='';shuffle([...brands]).forEach((b,i)=>{const opts=[b.real,...b.fake];shuffle(opts);const wrap=document.createElement('div');wrap.className='tool seen';wrap.innerHTML=`<div>${i+1}. ${b.brand} 官方域名？</div>`;const row=document.createElement('div');row.className='row';opts.forEach(o=>{const k=document.createElement('button');k.className='btn';k.textContent=o;k.onclick=()=>{if(o===b.real){k.classList.add('ok');scoreB.textContent=String(Number(scoreB.textContent)+1)}else{k.classList.add('bad')}};row.appendChild(k)});wrap.appendChild(row);boardB.appendChild(wrap)})});
